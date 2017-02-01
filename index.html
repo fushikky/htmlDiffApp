@@ -4,8 +4,22 @@
   <meta charset="utf-8">
   <title>Diff</title>
   <link rel="stylesheet" href="style.css"/>
+  <script src="node_modules/riot/riot+compiler.js"></script>
 </head>
 <body>
+
+  <app title='Hello, Riot.js'></app>
+  <script type="riot/tag">
+    <app>
+      <h1>{ title }</h1>
+      this.title = opts.title;
+    </app>
+  </script>
+
+  <script>
+    riot.mount('*');
+  </script>
+
 <div id="settings">
   <h1>Diff</h1>
   <label><input type="radio" name="diff_type" value="diffChars" checked> Chars</label>
@@ -30,6 +44,7 @@
 </table>
 
 <script src="node_modules/diff/dist/diff.js"></script>
+
 <script defer>
 var a = document.getElementById('a');
 var b = document.getElementById('b');
