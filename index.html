@@ -8,40 +8,53 @@
 </head>
 <body>
 
-  <app title='Hello, Riot.js'></app>
+  <div id="settings">
+    <h1>Diff</h1>
+    <label><input type="radio" name="diff_type" value="diffChars" checked> Chars</label>
+    <label><input type="radio" name="diff_type" value="diffWords"> Words</label>
+    <label><input type="radio" name="diff_type" value="diffLines"> Lines</label>
+    <label><input type="radio" name="diff_type" value="diffTrimmedLines"> Trimmed Lines</label>
+    <label><input type="radio" name="diff_type" value="createPatch"> Patch</label>
+    <label><input type="radio" name="diff_type" value="applyPatch"> Merge</label>
+  </div>
+  <div>
+    <h2>Url</h2>
+  </div>
+
+  <a href="https://github.com/kpdecker/jsdiff" class="source">github.com/kpdecker/jsdiff</a>
+
+  <diffform></diffform>
+
   <script type="riot/tag">
-    <app>
-      <h1>{ title }</h1>
-      this.title = opts.title;
-    </app>
+  <diffform>
+     <form onSubmit={handleSubmit}>
+       <input placeholder="original URL" value={this.url}/>
+       <input placeholder="target URL" value={}/>
+       <button type='submit'>Check Diff</button>
+     </form>
+     this.url = 'https://gochiusa-unofficial.amebaownd.com/'
+     this.handleSubmit = function(e) {
+       var originalUrl = e.target[0].value;
+       var targetUrl = e.target[1].valuse;
+       debugger
+       var a = fetch(originalUrl)
+       a.then(function(data) {
+        debugger
+        data
+       });
+       return false;
+     }
+  </diffform>
   </script>
 
-  <script>
-    riot.mount('*');
-  </script>
 
-<div id="settings">
-  <h1>Diff</h1>
-  <label><input type="radio" name="diff_type" value="diffChars" checked> Chars</label>
-  <label><input type="radio" name="diff_type" value="diffWords"> Words</label>
-  <label><input type="radio" name="diff_type" value="diffLines"> Lines</label>
-  <label><input type="radio" name="diff_type" value="diffTrimmedLines"> Trimmed Lines</label>
-  <label><input type="radio" name="diff_type" value="createPatch"> Patch</label>
-  <label><input type="radio" name="diff_type" value="applyPatch"> Merge</label>
-</div>
-<div>
-  <h2>Url</h2>
-</div>
-
-<a href="https://github.com/kpdecker/jsdiff" class="source">github.com/kpdecker/jsdiff</a>
-
-<table>
-  <tr>
-    <td contenteditable="true" id="a">restaurant</td>
-    <td contenteditable="true" id="b">aura</td>
-    <td id="result"></td>
-  </tr>
-</table>
+  <table>
+    <tr>
+      <td contenteditable="true" id="a">restaurant</td>
+      <td contenteditable="true" id="b">aura</td>
+      <td id="result"></td>
+    </tr>
+  </table>
 
 <script src="node_modules/diff/dist/diff.js"></script>
 
@@ -49,6 +62,7 @@
 var a = document.getElementById('a');
 var b = document.getElementById('b');
 var result = document.getElementById('result');
+
 function changed() {
   if(window.diffType == 'applyPatch') {
     b.textContent = JsDiff.applyPatch(a.textContent, result.textContent);
@@ -111,5 +125,10 @@ for (var i = 0; i < radio.length; i++) {
   }
 }
 </script>
+  <script>
+    riot.mount('*');
+  </script>
+
+
 </body>
 </html>
