@@ -5,6 +5,7 @@
   <title>Diff</title>
   <link rel="stylesheet" href="style.css"/>
   <script src="node_modules/riot/riot+compiler.js"></script>
+  <script src="node_modules/superagent/superagent.js"></script>
 </head>
 <body>
 
@@ -27,22 +28,22 @@
 
   <script type="riot/tag">
   <diffform>
-     <form onSubmit={handleSubmit}>
-       <input placeholder="original URL" value={this.url}/>
-       <input placeholder="target URL" value={}/>
-       <button type='submit'>Check Diff</button>
+     <form >
+       <input placeholder="original URL" value={this.url} ref="input" />
+       <input placeholder="target URL" value={} ref="target"/>
+       <button type='submit' onClick={handleSubmit}>Check Diff</button>
      </form>
-     this.url = 'https://gochiusa-unofficial.amebaownd.com/'
+     // this.url = 'https://gochiusa-unofficial.amebaownd.com/';
+     this.url = 'https://yahoo.co.jp/';
      this.handleSubmit = function(e) {
-       var originalUrl = e.target[0].value;
-       var targetUrl = e.target[1].valuse;
+       var originalUrl = this.refs.input.value;
+       var targetUrl = this.refs.target.value;
        debugger
-       var a = fetch(originalUrl)
-       a.then(function(data) {
+       var a = superagent.get(originalUrl)
+       a.end(function(data) {
         debugger
         data
        });
-       return false;
      }
   </diffform>
   </script>
