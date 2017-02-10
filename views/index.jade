@@ -1,0 +1,38 @@
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+
+  diffform
+
+  script(type="riot/tag").
+    <diffform>
+       <form >
+         <input placeholder="original URL" value={this.url} ref="input" />
+         <input placeholder="target URL" value={} ref="target"/>
+         <button type='submit' onClick={handleSubmit}>Check Diff</button>
+       </form>
+       // this.url = 'https://gochiusa-unofficial.amebaownd.com/';
+       this.url = 'http://yahoo.co.jp/';
+       this.handleSubmit = function(e) {
+         var originalUrl = this.refs.input.value;
+         var targetUrl = this.refs.target.value;
+         var domain = 'http://localhost:3010';
+         var path = '/api/fetch'
+         debugger
+         superagent.get(domain + path)
+         .query({originalUrl: originalUrl})
+         .withCredentials()
+         .end(function(data) {
+          debugger
+          data
+         });
+       }
+    </diffform>
+
+
+  script.
+    riot.mount('*');
+
+
