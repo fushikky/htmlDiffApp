@@ -3,6 +3,7 @@ extends layout
 block content
   h1= title
   p Welcome to #{title}
+  div#text
 
   diffform
 
@@ -16,18 +17,31 @@ block content
        // this.url = 'https://gochiusa-unofficial.amebaownd.com/';
        this.url = 'http://yahoo.co.jp/';
        this.handleSubmit = function(e) {
+         e.preventDefault();
          var originalUrl = this.refs.input.value;
          var targetUrl = this.refs.target.value;
          var domain = 'http://localhost:3010';
          var path = '/api/fetch'
          debugger
-         superagent.get(domain + path)
-         .query({originalUrl: originalUrl})
-         .withCredentials()
-         .end(function(data) {
-          debugger
-          data
+         $.ajax({
+           url: domain + path + '?originalUrl=' + originalUrl,
+           // crossDomain; true,
+           cache: false,
+           success: function(data){
+             debugger
+             var text = $('#text')
+             text.html(data.body);
+             
+           }
          });
+         // superagent.get(domain + path)
+         // .query({originalUrl: originalUrl})
+         // .withCredentials()
+         // .end(function(data) {
+         //  debugger
+         //  data
+         // });
+         return false;
        }
     </diffform>
 
