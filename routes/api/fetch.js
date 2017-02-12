@@ -1,28 +1,27 @@
 var express = require('express');
-// var request = require('request');
 var phantom = require('phantom');
-// var cheerio = require('cheerio');
 
 var router = express.Router();
 
 router.get('/', function(req, res, next) {
-  const originalUrl = req.query.originalUrl;
+  const url = req.query.url;
   const options = {};
-  // options.url = originalUrl;
-  console.log('originalUrl:' + originalUrl);
+  console.log('url:' + url);
+  var instance1;
   phantom.create()
   .then((instance) => {
-      return instance.createPage();
+    instance1= instance;
+    return instance.createPage();
   })
   .then(function(page) {
-    console.log('page.open');
-    page.open(originalUrl)
+    page.open(url)
     .then(function(status) {
-      console.log('status:' + status)
+      console.log('status:' + status);
       page.property('content')
       .then(function(content) {
-        console.log(content)
+        console.log(content);
         res.send({ body: content });
+        instance1.exit();
       });
     });
   })
@@ -30,16 +29,6 @@ router.get('/', function(req, res, next) {
       console.log(error);
       phInstance.exit();
   });
-
-
-
-  // request.get(options, function (error, response, body) {
-  //   console.log(error)
-
-  //   console.log('body')
-  //   console.log(body)
-  //   res.send({ body: body });
-  // });
 });
 
 module.exports = router;

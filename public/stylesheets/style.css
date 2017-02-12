@@ -79,3 +79,21 @@ ins {
     height: 99%; /* Hide scroll bar in Firefox */
   }
 }
+
+
+
+.block {
+  box-sizing: border-box;
+  float: left;
+  padding: 10px;
+  width: 33%;
+}
+
+.input {
+  min-width: 300px;
+}
+.textarea {
+  width: 100%;
+  height: 1000px;
+}
+

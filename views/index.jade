@@ -2,51 +2,92 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
-  div#text
-
-  diffform
-
+  div
+    diffBlock
   script(type="riot/tag").
-    <diffform>
-       <form >
-         <input placeholder="original URL" value={this.url} ref="input" />
-         <input placeholder="target URL" value={} ref="target"/>
-         <button type='submit' onClick={handleSubmit}>Check Diff</button>
-       </form>
-       // this.url = 'https://gochiusa-unofficial.amebaownd.com/';
-       this.url = 'http://yahoo.co.jp/';
-       this.handleSubmit = function(e) {
-         e.preventDefault();
-         var originalUrl = this.refs.input.value;
-         var targetUrl = this.refs.target.value;
-         var domain = 'http://localhost:3010';
-         var path = '/api/fetch'
-         debugger
-         $.ajax({
-           url: domain + path + '?originalUrl=' + originalUrl,
-           // crossDomain; true,
-           cache: false,
-           success: function(data){
-             debugger
-             var text = $('#text')
-             text.html(data.body);
-             
-           }
-         });
-         // superagent.get(domain + path)
-         // .query({originalUrl: originalUrl})
-         // .withCredentials()
-         // .end(function(data) {
-         //  debugger
-         //  data
-         // });
-         return false;
-       }
-    </diffform>
+    <diffBlock>
+      <fetchForm placeholder="http://yahoo.co.jp/" class="block" ref="form1" />
+      <fetchForm placeholder="http://yahoo.co.jp/" class="block" ref="form2"/>
+      <button onClick={showDiff}>Show Diff</button>
+      <p class="block">
+        <span each={ diff }>
+          <ins if={added}>{value}</ins>
+          <del if={removed}>{value}</del>
+          <span if={!removed && !added}>{value}</span>
+        </span>
+      </p>
+      this.diff = [];
+      this.showDiff = () => {
+        const text1 = this.refs.form1.text;
+        const text2 = this.refs.form2.text;
+        const diffType = 'diffChars'
+        this.diff = JsDiff[diffType](text1, text2);
+        // var fragment = document.createDocumentFragment();
+        // for (var i=0; i < diff.length; i++) {
+        //   if (diff[i].added && diff[i + 1] && diff[i + 1].removed) {
+        //     var swap = diff[i];
+        //     diff[i] = diff[i + 1];
+        //     diff[i + 1] = swap;
+        //   }
+        //   var node;
+        //   if (diff[i].removed) {
+        //     node = document.createElement('del');
+        //     node.appendChild(document.createTextNode(diff[i].value));
+        //   } else if (diff[i].added) {
+        //     node = document.createElement('ins');
+        //     node.appendChild(document.createTextNode(diff[i].value));
+        //   } else {
+        //     node = document.createTextNode(diff[i].value);
+        //   }
+        //   fragment.appendChild(node);
+        // }
+      }
 
+      this.on('update', (v) => {
+        this.showDiff();
+        // ['diffChars', 'diffWords', 'diffLines', 'createPatch', 'diffTrimmedLines', 'applyPatch']
+        // b.textContent = JsDiff.applyPatch(a.textContent, result.textContent);
+        // result.textContent = JsDiff.createPatch('filename',a.textContent, b.textContent,'left','right');
+     });
+      // this.on('mount', () => {});
+    </diffBlock>
+
+    <fetchForm>
+      <form>
+        <div>
+          <input class="input" placeholder="URL" value={this.url} ref="url" />
+          <button type='submit' onClick={handleSubmit}>fetch</button>
+        </div>
+        <textarea class="textarea" onKeyup={ edit } >{this.text}</textarea>
+      </form>
+      this.url = opts.placeholder;
+      this.text = '';
+
+      this.edit = (e) => {
+        this.text = e.target.value;
+        riot.update();
+      }
+      this.handleSubmit = (e) => {
+        e.preventDefault();
+        var url = this.refs.url.value;
+        var domain = 'http://localhost:3010';
+        var path = '/api/fetch'
+        this.text = 'Loading...';
+        $.ajax({
+          url: domain + path + '?url=' + url,
+          // crossDomain; true,
+          cache: false,
+          success: (data) => {
+            this.text = data.body;
+            riot.update();
+          }
+        });
+        return false;
+      }
+    </fetchForm>
 
   script.
     riot.mount('*');
 
+  script(src="scripts/diff/dist/diff.js")
 
