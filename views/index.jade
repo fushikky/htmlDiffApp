@@ -6,49 +6,69 @@ block content
     diffBlock
   script(type="riot/tag").
     <diffBlock>
-      <fetchForm placeholder="http://yahoo.co.jp/" class="block" ref="form1" />
-      <fetchForm placeholder="http://yahoo.co.jp/" class="block" ref="form2"/>
-      <button onClick={showDiff}>Show Diff</button>
-      <p class="block">
-        <span each={ diff }>
-          <ins if={added}>{value}</ins>
-          <del if={removed}>{value}</del>
-          <span if={!removed && !added}>{value}</span>
-        </span>
-      </p>
+      <fetchForm
+        placeholder="https://yahoo.co.jp"
+        class="block"
+        ref="form1"
+      />
+      <fetchForm
+        placeholder="https://yahoo.co.jp"
+        class="block"
+        ref="form2"
+      />
+      <div class="result">
+        <select name="diff_type" ref="select">
+          <option value="diffChars">Chars</option>
+          <option value="diffWords">Word</option>
+          <option value="diffLines">Lines</option>
+          <option value="diffTrimmedLines">Trimmed Lines</option>
+          <option value="createPatch">Patch</option>
+          <option value="applyPatch">Merge</option>
+        </select>
+        <input class="input" placeholder="diffLength" value={this.diffLength} ref="diffLength" />
+        <button onClick={showDiff}>Show Diff</button>
+        <p>{diffMsg}</p>
+        <p>
+          <span each={ diff }>
+            <ins if={added}>{value}</ins>
+            <del if={removed}>{value}</del>
+            <span if={!removed && !added} each={v , i in value.split('\n')}>
+              {v}<br if={i < value.split('\n').length - 1}/>
+            </span>
+          </span>
+        </p>
+      </div>
       this.diff = [];
+      this.diffMsg = '';
+      this.diffLength = 10000;
       this.showDiff = () => {
-        const text1 = this.refs.form1.text;
-        const text2 = this.refs.form2.text;
-        const diffType = 'diffChars'
-        this.diff = JsDiff[diffType](text1, text2);
-        // var fragment = document.createDocumentFragment();
-        // for (var i=0; i < diff.length; i++) {
-        //   if (diff[i].added && diff[i + 1] && diff[i + 1].removed) {
-        //     var swap = diff[i];
-        //     diff[i] = diff[i + 1];
-        //     diff[i + 1] = swap;
-        //   }
-        //   var node;
-        //   if (diff[i].removed) {
-        //     node = document.createElement('del');
-        //     node.appendChild(document.createTextNode(diff[i].value));
-        //   } else if (diff[i].added) {
-        //     node = document.createElement('ins');
-        //     node.appendChild(document.createTextNode(diff[i].value));
-        //   } else {
-        //     node = document.createTextNode(diff[i].value);
-        //   }
-        //   fragment.appendChild(node);
-        // }
+        const form1 = this.refs.form1;
+        const text1 = form1.text;
+        const form2 = this.refs.form2;
+        const text2 = form2.text;
+        const diffType = 'diffChars';
+        this.diff = [];
+        this.diffMsg = 'Diff Creating...';
+        setTimeout(() => {
+          this.diffMsg = '';
+          const diffType = this.refs.select.value;
+          const createDiff = JsDiff[diffType];
+
+          const diffLength = +this.refs.diffLength.value;
+          this.diff = createDiff(
+            text1.substr(0,  diffLength),
+            // text1.substr(form1.bodyIndex,  diffLength || form1.bodyIndex2),
+            text2.substr(0,  diffLength)
+            // text2.substr(form2.bodyIndex,  diffLength || form2.bodyIndex2)
+          );
+          this.update();
+        }, 0);
       }
 
-      this.on('update', (v) => {
-        this.showDiff();
-        // ['diffChars', 'diffWords', 'diffLines', 'createPatch', 'diffTrimmedLines', 'applyPatch']
-        // b.textContent = JsDiff.applyPatch(a.textContent, result.textContent);
-        // result.textContent = JsDiff.createPatch('filename',a.textContent, b.textContent,'left','right');
-     });
+      // this.on('update', (v) => {
+      //   this.showDiff();
+      //   // ['diffChars', 'diffWords', 'diffLines', 'createPatch', 'diffTrimmedLines', 'applyPatch']
+      // });
       // this.on('mount', () => {});
     </diffBlock>
 
@@ -59,6 +79,9 @@ block content
           <button type='submit' onClick={handleSubmit}>fetch</button>
         </div>
         <textarea class="textarea" onKeyup={ edit } >{this.text}</textarea>
+        <p>textCount: {text.length}</p>
+        <p>bodyIndex: {bodyIndex}</p>
+        <p>bodyIndex2: {bodyIndex2}</p>
       </form>
       this.url = opts.placeholder;
       this.text = '';
@@ -77,12 +100,19 @@ block content
           url: domain + path + '?url=' + url,
           // crossDomain; true,
           cache: false,
+          timeout: 30000,
           success: (data) => {
             this.text = data.body;
-            riot.update();
+            this.text = this.text.replace(/>/g, '>\n');
+            this.bodyIndex = this.text.indexOf('class="page__outer"');
+            this.bodyIndex2 = this.text.indexOf('</body>');
+            this.update();
+            // riot.update();
+          },
+          error: (err) => {
           }
         });
-        return false;
+        // return false;
       }
     </fetchForm>
 

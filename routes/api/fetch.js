@@ -5,12 +5,11 @@ var router = express.Router();
 
 router.get('/', function(req, res, next) {
   const url = req.query.url;
-  const options = {};
   console.log('url:' + url);
-  var instance1;
+  var phInstance;
   phantom.create()
   .then((instance) => {
-    instance1= instance;
+    phInstance = instance;
     return instance.createPage();
   })
   .then(function(page) {
@@ -19,14 +18,15 @@ router.get('/', function(req, res, next) {
       console.log('status:' + status);
       page.property('content')
       .then(function(content) {
-        console.log(content);
+        console.log(content.substring(0, 100));
         res.send({ body: content });
-        instance1.exit();
+        inst.exit();
       });
     });
   })
   .catch(error => {
       console.log(error);
+      res.send({ error: error });
       phInstance.exit();
   });
 });
